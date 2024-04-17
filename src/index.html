@@ -1,0 +1,181 @@
+<<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Sistema de Gerenciamento de Senhas</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4a460; /* Cor de fundo da página */
+    color: #333;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+  }
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+  }
+  .desenvolvedores-container {
+    position: absolute;
+    left: 0;
+    top: 50px;
+    background-color: #fff; /* Fundo branco para destaque */
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+  }
+  .senha-container {
+    background-color: #FFD700; /* Cor dourada para o gerador de senhas */
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin: 10px;
+    width: 300px;
+    box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+  }
+  .guiche-container {
+    background-color: #90EE90; /* Cor verde clara para o guichê de atendimento */
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin: 10px;
+    width: 300px;
+    box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+    position: relative;
+  }
+  .piscar-vermelho {
+    animation: piscar 1s step-start infinite;
+    color: red;
+  }
+  @keyframes piscar {
+    50% { color: transparent; }
+  }
+  .contador-chamadas {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    margin: 10px 0;
+    border: none;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #45a049;
+  }
+  select {
+    padding: 10px;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<h1 style="font-weight: bold;">Bem vindo ao sistema de controle de senhas</h1>
+
+<div class="container">
+  <div class="desenvolvedores-container">
+    <h2>Desenvolvedores:</h2>
+    <p>Andre Crispim - 01008087</p>
+    <p>Rafael Alheiro - 011018601</p>
+    <p>Lucas Jose - 01432155</p>
+    <p>Maria Micaelle - 01461200</p>
+  </div>
+
+  <div class="senha-container">
+    <h1>Gerador de Senhas</h1>
+    <label for="tipoSenha">Tipo de Senha:</label>
+    <select id="tipoSenha">
+      <option value="SG">Senha Geral</option>
+      <option value="SP">Senha Prioritária</option>
+      <option value="SE">Senha de Exame</option>
+    </select>
+    <button onclick="gerarSenha()">Gerar Senha</button>
+  </div>
+
+  <div class="guiche-container">
+    <h1>Guichê de Atendimento</h1>
+    <div id="atendimentoAtual">
+      <p>Nenhuma senha sendo atendida no momento.</p>
+    </div>
+    <div class="contador-chamadas">
+      <p>Total de Chamadas: <span id="totalChamadas">0</span></p>
+      <p>Senha Mais Chamada: <span id="senhaMaisChamada"></span></p>
+      <p>Data e Hora da Última Chamada: <span id="dataHoraUltimaChamada"></span></p>
+    </div>
+    <div id="listaSenhasChamadas">
+      <h2>Senhas Chamadas:</h2>
+    </div>
+    <button onclick="zerarSenhas()">Zerar Senhas</button>
+  </div>
+</div>
+
+<script>
+let contadorSenhas = { SG: 0, SP: 0, SE: 0 };
+let totalChamadas = 0;
+let senhasChamadas = { SG: [], SP: [], SE: [] };
+let guicheAtual = Math.floor(Math.random() * 3) + 1; // Gera um número aleatório entre 001 e 003
+
+function gerarSenha() {
+  let tipoSenha = document.getElementById('tipoSenha').value;
+  contadorSenhas[tipoSenha]++;
+  totalChamadas++;
+  let senhaGerada = tipoSenha + ('000' + contadorSenhas[tipoSenha]).slice(-3);
+  let dataHora = new Date().toLocaleString('pt-BR');
+  document.getElementById('atendimentoAtual').innerHTML = `<p><span class="piscar-vermelho">Dirija-se ao Guichê ${guicheAtual}</span> com a senha: <strong>${senhaGerada}</strong></p><p>Data e Hora: <strong>${dataHora}</strong></p>`;
+  document.getElementById('totalChamadas').textContent = totalChamadas;
+  atualizarSenhaMaisChamada(tipoSenha);
+  dataHoraUltimaChamada = dataHora;
+  document.getElementById('dataHoraUltimaChamada').textContent = dataHoraUltimaChamada;
+  senhasChamadas[tipoSenha].push(senhaGerada);
+  atualizarListaSenhasChamadas();
+  guicheAtual = Math.floor(Math.random() * 3) + 1; // Gera um novo número aleatório para o próximo guichê
+}
+
+function atualizarSenhaMaisChamada(tipoSenha) {
+  let maxChamadas = 0;
+  for (let senha in contadorSenhas) {
+    if (contadorSenhas[senha] > maxChamadas) {
+      maxChamadas = contadorSenhas[senha];
+      senhaMaisChamada = senha;
+    }
+  }
+  document.getElementById('senhaMaisChamada').textContent = senhaMaisChamada + ' (' + maxChamadas + ' vezes)';
+}
+
+function atualizarListaSenhasChamadas() {
+  let listaSenhasElemento = document.getElementById('listaSenhasChamadas');
+  listaSenhasElemento.innerHTML = '<h2>Senhas Chamadas:</h2>';
+  for (let tipo in senhasChamadas) {
+    if (senhasChamadas[tipo].length > 0) {
+      let senhas = senhasChamadas[tipo].join(', ');
+      listaSenhasElemento.innerHTML += `<p><strong>${tipo}:</strong> ${senhas}</p>`;
+    }
+  }
+}
+
+function zerarSenhas() {
+  contadorSenhas = { SG: 0, SP: 0, SE: 0 };
+  totalChamadas = 0;
+  senhasChamadas = { SG: [], SP: [], SE: [] };
+  guicheAtual = Math.floor(Math.random() * 3) + 1; // Reseta o número do guichê
+  document.getElementById('atendimentoAtual').innerHTML = '<p>Nenhuma senha sendo atendida no momento.</p>';
+  document.getElementById('totalChamadas').textContent = '0';
+  document.getElementById('senhaMaisChamada').textContent = '';
+  document.getElementById('dataHoraUltimaChamada').textContent = '';
+  document.getElementById('listaSenhasChamadas').innerHTML = '<h2>Senhas Chamadas:</h2>';
+}
+
+// Inicializa o sistema com uma senha de exemplo
+gerarSenha();
+</script>
+
+</body>
+</html>
